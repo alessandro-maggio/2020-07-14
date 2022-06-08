@@ -5,7 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import it.polito.tdp.PremierLeague.model.Action;
 import it.polito.tdp.PremierLeague.model.Match;
 import it.polito.tdp.PremierLeague.model.Player;
@@ -36,9 +39,9 @@ public class PremierLeagueDAO {
 		}
 	}
 	
-	public List<Team> listAllTeams(){
+	public Map<Integer, Team> listAllTeams(){
 		String sql = "SELECT * FROM Teams";
-		List<Team> result = new ArrayList<Team>();
+		Map<Integer, Team> result = new HashMap<>();
 		Connection conn = DBConnect.getConnection();
 
 		try {
@@ -47,7 +50,7 @@ public class PremierLeagueDAO {
 			while (res.next()) {
 
 				Team team = new Team(res.getInt("TeamID"), res.getString("Name"));
-				result.add(team);
+				result.put(team.getTeamID(), team);
 			}
 			conn.close();
 			return result;
@@ -84,6 +87,7 @@ public class PremierLeagueDAO {
 	}
 	
 	public List<Match> listAllMatches(){
+		
 		String sql = "SELECT m.MatchID, m.TeamHomeID, m.TeamAwayID, m.teamHomeFormation, m.teamAwayFormation, m.resultOfTeamHome, m.date, t1.Name, t2.Name   "
 				+ "FROM Matches m, Teams t1, Teams t2 "
 				+ "WHERE m.TeamHomeID = t1.TeamID AND m.TeamAwayID = t2.TeamID";
@@ -110,6 +114,43 @@ public class PremierLeagueDAO {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	
+	
+	
+	public void assegnaPunti(Map<Integer, Team> idMap) {
+		
+		String sql = "select m.`TeamHomeID` as id1, m.`TeamAwayID` as id2, m.`ResultOfTeamHome` as risultato "
+				+ "from matches m "
+				+ "where YEAR(m.`Date`) >=2011 and YEAR(m.`Date`) <=2012";
+		
+		//List<Match> result = new ArrayList<Match>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+
+				if(res.getInt("risultato")>0) {
+					idMap.get(res.getInt("id1")).setPunteggio(3);
+				}
+				else if(res.getInt("risultato")==0) {
+					idMap.get(res.getInt("id1")).setPunteggio(1);
+					idMap.get(res.getInt("id2")).setPunteggio(1);
+				}
+				else {
+					idMap.get(res.getInt("id2")).setPunteggio(3);
+				}
+			}
+			conn.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			
+		}
+		
 	}
 	
 }

@@ -3,6 +3,9 @@ package it.polito.tdp.PremierLeague.model;
 public class Team {
 	Integer teamID;
 	String name;
+	private int punteggio;
+	
+	private int nReporter;
 
 	public Team(Integer teamID, String name) {
 		super();
@@ -23,6 +26,25 @@ public class Team {
 		this.name = name;
 	}
 	
+	public void setPunteggio(int aggiungi) {
+		this.punteggio+=aggiungi;
+	}
+	
+	public void azzerapunteggio() {
+		this.punteggio=0;
+	}
+	
+	public int getPunteggio() {
+		return punteggio;
+	}
+	
+	public int getnReporter() {
+		return nReporter;
+	}
+
+	public void setnReporter(int nReporter) {
+		this.nReporter = nReporter;
+	}
 	
 
 	@Override
